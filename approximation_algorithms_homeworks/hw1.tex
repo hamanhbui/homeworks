@@ -1,0 +1,143 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\usepackage{listings}
+
+\usepackage{enumitem}                     
+
+
+ \usepackage{titlesec}
+
+\titleformat*{\section}{\bfseries}
+\titleformat*{\subsection}{\bfseries}
+\titleformat*{\subsubsection}{\bfseries}
+\titleformat*{\paragraph}{\bfseries}
+\titleformat*{\subparagraph}{\bfseries}
+
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+
+
+\newtheorem{fact}{Fact}
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notation
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% anupam's abbreviations
+\newcommand{\e}{\epsilon}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+\newcommand{\junk}[1]{}
+\newcommand{\sse}{\subseteq}
+\newcommand{\union}{\cup}
+\newcommand{\meet}{\wedge}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\setenumerate[0]{label=(\alph*)}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+\noindent {\large {\bf 601.435 / 601.635 Approximation Algorithms} \hfill {{\bf Spring 2024}}}\\
+{{\bf Homework \#1}} \hfill {{\bf Due:} February 15, 2024, 9:00am} \\
+\rule[0.1in]{\textwidth}{0.4pt}
+
+Reminder: you may work in groups of up to three people, but must write up solutions entirely on your own.  Collaboration is limited to discussing the problems -- you may not look at, compare, reuse, etc.~any text from anyone else in the class.  Please include your list of collaborators on the first page of your submission.  Many of these problems have solutions which can be found on the internet -- please don't look.  You can of course use the internet (including the links provided on the course webpage) as a learning tool, but don't go looking for solutions.  
+
+Please include proofs with all of your answers, unless stated otherwise.
+
+\noindent \rule[0.1in]{\textwidth}{0.4pt}
+
+\section{$k$-suppliers (33 points)}
+
+The $k$-suppliers problem is similar to $k$-center.  We are given a metric space $(V,d)$ and a natural number $k$.  However,  in $k$-suppliers the set of points $V$ is partitioned into two sets: the \emph{suppliers} $F$ and the \emph{customers} $D = V \setminus F$.  The goal is to find a set of suppliers $S \subseteq F$ with $|S| = k$ that minimizes $\max_{u \in D} d(u,S)$.  Give a $3$-approximation algorithm for this problem.  Hint: think about the greedy $2$-approximation for $k$-center  from class  
+
+
+\section{Hardness of Minimum Degree Spanning Tree (33 points)}
+Recall the minimum degree spanning tree problem: given a graph $G = (V,E)$, find the spanning tree which minimizes the maximum degree.  Prove that unless P = NP, there is no $\alpha$-approximation for this problem with $\alpha < 3/2$.   Hint: consider the Hamiltonian Path problem.
+
+
+\section{Edge-Disjoint Paths (34 points)}
+In the edge-disjoint paths problem (EDP), the input is an undirected graph $G = (V,E)$ and a set $T = \{(s_1, t_2), (s_2, t_2), \dots, (s_k, t_k)\}$, such that $s_i, t_i \in V$ for all $i \in [k]$.  A feasible solution is a set $I \subseteq [k]$ and for all $i \in I$ a path $P_i$ between $s_i$ and $t_i$, with the additional constraint that $P_i \cap P_j = \emptyset$ for $i, j \in I$ with $i \neq j$ (where we view paths as edge sets).  In other words, a feasible solution is a set of edge-disjoint paths between a subset of the pairs in $T$.  The objective is to maximize $|I|$, i.e., the number of edge-disjoint paths that we can find.  
+
+Consider the following greedy algorithm, where initially $I \leftarrow \emptyset$:
+\begin{enumerate}[label=\arabic*.]
+\item Initially $I = \emptyset$ and $H = G$
+\item Repeat until all pairs $(s_i, t_i)$, $i \in [k] \setminus I$ are disconnected in $H$:
+	\begin{enumerate}
+	\item Let $i \in [k] \setminus I$ be the index which minimizes the distance between $s_i$ and $t_i$ in $H$, i.e., $i = \argmin_{j \in [k] \setminus I} d_H(s_j, t_j)$
+	\item Let $P_{i}$ be a shortest path between $s_i$ and $t_i$ in $H$.
+	\item Add $i$ to $I$ and choose path $P_{i}$ for $i$, and remove all edges of $P_{i}$ from $H$.
+	\end{enumerate}
+\item Return $I$ and the paths $\{P_i : i \in I\}$
+\end{enumerate}
+
+Informally, this algorithm just always picks the shortest possible path remaining, then deletes this path from the graph and continues.  Prove that this is an $O(\sqrt{m})$-approximation (where $m = |E|$).  
+
+Hint: divide paths up into short paths (length at most $\sqrt{m}$) and long paths (length larger than $\sqrt{m}$).  
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

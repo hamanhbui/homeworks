@@ -1,0 +1,200 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\usepackage{listings}
+
+\usepackage{enumitem}                     
+
+\usepackage{xcolor}
+ \usepackage{titlesec}
+
+\titleformat*{\section}{\bfseries}
+\titleformat*{\subsection}{\bfseries}
+\titleformat*{\subsubsection}{\bfseries}
+\titleformat*{\paragraph}{\bfseries}
+\titleformat*{\subparagraph}{\bfseries}
+
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+
+
+\newtheorem{fact}{Fact}
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notation
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% anupam's abbreviations
+\newcommand{\e}{\epsilon}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+\newcommand{\junk}[1]{}
+\newcommand{\sse}{\subseteq}
+\newcommand{\union}{\cup}
+\newcommand{\meet}{\wedge}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\setenumerate[0]{label=(\alph*)}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+\noindent {\large {\bf 601.435 / 601.635 Approximation Algorithms} \hfill {{\bf Spring 2024}}}\\
+{{\bf Homework \#1}} \hfill {{\bf Due:} February 15, 2024, 9:00am} \\
+\rule[0.1in]{\textwidth}{0.4pt}
+
+Reminder: you may work in groups of up to three people, but must write up solutions entirely on your own.  Collaboration is limited to discussing the problems -- you may not look at, compare, reuse, etc.~any text from anyone else in the class.  Please include your list of collaborators on the first page of your submission.  Many of these problems have solutions which can be found on the internet -- please don't look.  You can of course use the internet (including the links provided on the course webpage) as a learning tool, but don't go looking for solutions.  
+
+Please include proofs with all of your answers, unless stated otherwise.
+
+\noindent \rule[0.1in]{\textwidth}{0.4pt}
+
+\begin{center}
+    \textbf{\textcolor{blue}{Student: Ha Manh Bui (hbui13@jhu.edu)}}
+\end{center}
+
+\section{$k$-suppliers (33 points)}
+
+The $k$-suppliers problem is similar to $k$-center.  We are given a metric space $(V,d)$ and a natural number $k$.  However,  in $k$-suppliers the set of points $V$ is partitioned into two sets: the \emph{suppliers} $F$ and the \emph{customers} $D = V \setminus F$.  The goal is to find a set of suppliers $S \subseteq F$ with $|S| = k$ that minimizes $\max_{u \in D} d(u,S)$.  Give a $3$-approximation algorithm for this problem.  Hint: think about the greedy $2$-approximation for $k$-center from class.
+
+\textcolor{purple}{
+    \textbf{3-approximation algorithm}:
+    \begin{enumerate}[label=\arabic*.]
+        \item Initially $D' \leftarrow \{u\}$, for $u \in D$ arbitrary
+        \item While $|D'|<k$:
+        \begin{enumerate}
+            \item Let $u\in D\setminus D'$ be the element maximizing $d(u, D')$
+            \item $D'\leftarrow D'\cup \{u\}$
+        \end{enumerate}
+        \item Return $S=\{f_i|d_i\in D'\}$, where $f_i\in F$ is nearest supplier of customer $d_i\in D'$.
+    \end{enumerate}
+    \begin{proof}
+        Let $d(u,v)$ be the distance between $u$ and $v$, and $OPT$ be the optimal solution to $k$-supplier problem, then we have
+        \begin{align}
+            d(d_i,f_i)\leq OPT, \forall i \in [|S|].
+        \end{align}
+        Therefore, if $|D|\leq k$, then $S=\{f_i|d_i\in D'\}$ gives an optimal solution.\\
+        Consider $|D|>k$, since the first 2 steps of the algorithm are applying $k$-center to $D$, so we know that this is a 2-approximation and $\forall u \in D, d(u,D')\leq 2\cdot OPT$. Therefore:
+        \begin{enumerate}
+            \item If $\exists d_i \in D'$ s.t. $d(u,d_i) \leq 2OPT, \forall u\in D$, then by the triangle inequality, we have
+            \begin{align}
+                d(u,f_i) \leq d(u,d_i) + d(d_i,f_i) \leq 2OPT + OPT = 3\cdot OPT.
+            \end{align}
+            \item Else, then $\forall d_i, d_j \in D'$, we have
+            \begin{align}
+                d(d_i,d_j) > 2 \cdot OPT,
+            \end{align}
+            yielding $D' \cup \{u\}$ consists of $k+1$ customers s.t. any pair is at a distance $>2OPT$. This is impossible because $\geq k+1$ suppliers are needed for a solution with value $OPT$.
+        \end{enumerate}
+        As a result, we get $\forall u \in D, d(u,S) \leq 3\cdot OPT$, yielding $\max_{u\in D}d(u,S) \leq 3\cdot OPT$, since the objective function is minimizing, we obtain the algorithm is a 3-approximation.
+    \end{proof}
+}
+
+\section{Hardness of Minimum Degree Spanning Tree (33 points)}
+Recall the minimum degree spanning tree problem: given a graph $G = (V,E)$, find the spanning tree which minimizes the maximum degree.  Prove that unless P = NP, there is no $\alpha$-approximation for this problem with $\alpha < 3/2$.   Hint: consider the Hamiltonian Path problem.
+
+\textcolor{purple}{
+    \begin{proof}
+        Recall the Theorem 2.18 in The Design of Approximation Algorithms book. ``The Minimum Degree
+        Spanning Tree is NP-complete to decide whether or not a given graph has a minimum-degree spanning tree of maximum degree two.''.\\
+        By reduction of the Hamiltonian Path problem, i.e., finding a path that goes through every vertex exactly once in the graph $G=(V,E)$, we can see that the problem of a graph having a spanning tree with a maximum degree $\leq 2$ is the same as the Hamiltonian path problem.\\
+        So, let the graph $G$ be an instance of the Hamiltonian Path problem. Assume there is an $\alpha$-approximation for this problem with $\alpha<3/2$, apply this algorithm to G, we have:
+        \begin{enumerate}
+            \item If $G$ has a Hamiltonian Path, then the algorithm will output a value $\leq \alpha \cdot 2 < 3$.
+            \item Else, then the algorithm will output a value of $\geq 3$.
+        \end{enumerate}
+        Therefore, this algorithm can solve the Hamiltonian Path problem in polynomial time, which is impossible assuming that $P \neq NP$. As a result, we obtain that unless $P = NP$, there is no $\alpha$-approximation for this problem with $\alpha < 3/2$.
+    \end{proof}
+}
+
+\section{Edge-Disjoint Paths (34 points)}
+In the edge-disjoint paths problem (EDP), the input is an undirected graph $G = (V,E)$ and a set $T = \{(s_1, t_2), (s_2, t_2), \dots, (s_k, t_k)\}$, such that $s_i, t_i \in V$ for all $i \in [k]$.  A feasible solution is a set $I \subseteq [k]$ and for all $i \in I$ a path $P_i$ between $s_i$ and $t_i$, with the additional constraint that $P_i \cap P_j = \emptyset$ for $i, j \in I$ with $i \neq j$ (where we view paths as edge sets).  In other words, a feasible solution is a set of edge-disjoint paths between a subset of the pairs in $T$.  The objective is to maximize $|I|$, i.e., the number of edge-disjoint paths that we can find.  
+
+Consider the following greedy algorithm, where initially $I \leftarrow \emptyset$:
+\begin{enumerate}[label=\arabic*.]
+\item Initially $I = \emptyset$ and $H = G$
+\item Repeat until all pairs $(s_i, t_i)$, $i \in [k] \setminus I$ are disconnected in $H$:
+	\begin{enumerate}
+	\item Let $i \in [k] \setminus I$ be the index which minimizes the distance between $s_i$ and $t_i$ in $H$, i.e., $i = \arg\min_{j \in [k] \setminus I} d_H(s_j, t_j)$
+	\item Let $P_{i}$ be a shortest path between $s_i$ and $t_i$ in $H$.
+	\item Add $i$ to $I$ and choose path $P_{i}$ for $i$, and remove all edges of $P_{i}$ from $H$.
+	\end{enumerate}
+\item Return $I$ and the paths $\{P_i : i \in I\}$
+\end{enumerate}
+
+Informally, this algorithm just always picks the shortest possible path remaining, then deletes this path from the graph and continues.  Prove that this is an $O(\sqrt{m})$-approximation (where $m = |E|$).  
+
+Hint: divide paths up into short paths (length at most $\sqrt{m}$) and long paths (length larger than $\sqrt{m}$).
+
+\textcolor{purple}{
+    \begin{proof}
+        Let $OPT$ be the optimal solution and $ALL$ be the greedy solution to the Edge-Disjoint Paths problem. Divide paths up into short paths (length $\leq \sqrt{m}$) and long paths (length $> \sqrt{m}$), then decompose the optimal solution in long and short paths, we have
+        \begin{align}\label{eq:opt}
+            OPT = OPT_{s} + OPT_{l},
+        \end{align}
+        where $OPT_{s}$ and $OPT_{l}$ represent the optimal value on short and long paths respectively.\\
+        Firstly, let $P_{OPT}$ be a fixed short path in $OPT$, then $P_i$ from $ALL$ will cut $P_{OPT}$ for the first time, yielding $P_{OPT}$ gets charged to $P_i$ and all previously selected paths of $ALL$ are disjoint with $P_{OPT}$. So, $P_{OPT}$ is still available, but $ALL$ select $P_i$, implying the length of $P_i$ $<\sqrt{m}$. As a result, each short path in $OPT$ gets charged to some short path in $ALL$. On the other hand, since paths in $OPT$ are disjoint, in the worst case each edge of a short path selected by $ALL$ cuts a different path of $OPT$, yielding each short path in $ALL$ gets charged $\leq \sqrt{m}$ times. Therefore, we get
+        \begin{align}\label{eq:opt_s}
+            OPT_{s} \leq ALL \cdot \sqrt{m}.
+        \end{align}
+        Secondly, since paths in $OPT$ are disjoint, we know that $\frac{m}{\sqrt{m}}$ long paths will cover all $m$ edges, i.e.,
+        \begin{align}\label{eq:opt_l}
+            OPT_{l} \leq \frac{m}{\sqrt{m}} = \sqrt{m}.
+        \end{align}
+        Plugging the result in Eq.~\ref{eq:opt_s} and Eq.~\ref{eq:opt_l} to Eq.~\ref{eq:opt}, we obtain
+        \begin{align}
+            OPT &\leq ALL \cdot \sqrt{m} + \sqrt{m}\\
+            &\leq ALL \cdot \sqrt{m} + ALL \cdot \sqrt{m} \text{ (since $ALL \geq 1$)}\\
+            &= 2 \cdot ALL \cdot \sqrt{m},
+        \end{align}
+        i.e., 
+        \begin{align}
+            \frac{OPT}{ALL} \leq 2\cdot \sqrt{m}.
+        \end{align}
+        As a result, since $\sqrt{m} \geq 1$, where $m=|E|$ and the objective is maximizing, we obtain the greedy is an $\mathcal{O}(\sqrt{m})$-approximation.  
+    \end{proof}
+}
+
+\end{document}

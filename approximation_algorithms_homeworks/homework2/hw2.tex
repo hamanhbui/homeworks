@@ -68,9 +68,6 @@
 
 \newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
 
-\DeclareMathOperator*{\argmax}{arg\,max}
-\DeclareMathOperator*{\argmin}{arg\,min}
-
 \setenumerate[0]{label=(\alph*)}
 
 
@@ -83,45 +80,55 @@
 \begin{document}
 
 \noindent {\large {\bf 601.435 / 601.635 Approximation Algorithms} \hfill {{\bf Spring 2024}}}\\
-{{\bf Homework \#1}} \hfill {{\bf Due:} February 15, 2024, 9:00am} \\
+{{\bf Homework \#2}} \hfill {{\bf Due:} February 29, 2024, 9:00am} \\
 \rule[0.1in]{\textwidth}{0.4pt}
 
 Reminder: you may work in groups of up to three people, but must write up solutions entirely on your own.  Collaboration is limited to discussing the problems -- you may not look at, compare, reuse, etc.~any text from anyone else in the class.  Please include your list of collaborators on the first page of your submission.  Many of these problems have solutions which can be found on the internet -- please don't look.  You can of course use the internet (including the links provided on the course webpage) as a learning tool, but don't go looking for solutions.  
 
-Please include proofs with all of your answers, unless stated otherwise.
+\textbf{Please include proofs with all of your answers, unless stated otherwise.}
 
 \noindent \rule[0.1in]{\textwidth}{0.4pt}
 
-\section{$k$-suppliers (33 points)}
+\section{Min-cost bounded path (50 points)}
+Suppose are are given a directed acyclic graph $G= (V, E)$ with $|V| = n$ and $|E|=m$, a cost function $c : E \rightarrow \N$, a length function $\ell : E \rightarrow \N$, two nodes $s,t \in V$, and a length bound $L$.  Our goal is to compute the minimum cost $s \rightarrow t$ path whose length is at most $L$.  In other words, find the path $P$ from $s$ to $t$ with $\sum_{e \in P} \ell(e) \leq L$ which minimizes $\sum_{e \in P} c(e)$.  
 
-The $k$-suppliers problem is similar to $k$-center.  We are given a metric space $(V,d)$ and a natural number $k$.  However,  in $k$-suppliers the set of points $V$ is partitioned into two sets: the \emph{suppliers} $F$ and the \emph{customers} $D = V \setminus F$.  The goal is to find a set of suppliers $S \subseteq F$ with $|S| = k$ that minimizes $\max_{u \in D} d(u,S)$.  Give a $3$-approximation algorithm for this problem.  Hint: think about the greedy $2$-approximation for $k$-center  from class  
+\begin{enumerate}
+\item (25 points) Give a pseudopolynomial-time exact algorithm for this problem (i.e., an algorithm which solves the problem but runs in time polynomial in $n, m$ and $\max_{e \in E} c(e), \max_{e \in E} \ell(e)$).  
 
+\item (25 points) Using your algorithm from the previous part, give an FPTAS (a $(1+\varepsilon)$-approximation which runs in time polynomial in the size of the instance and $1/\varepsilon$, i.e., polynomial in $n, m, \log(\max_{e \in E} c(e)), \log(\max_{e \in E} \ell(e))$, and $1/\varepsilon$).  Hint: Think about ``guessing'' the maximum cost of any edge that appears in the optimal path.
 
-\section{Hardness of Minimum Degree Spanning Tree (33 points)}
-Recall the minimum degree spanning tree problem: given a graph $G = (V,E)$, find the spanning tree which minimizes the maximum degree.  Prove that unless P = NP, there is no $\alpha$-approximation for this problem with $\alpha < 3/2$.   Hint: consider the Hamiltonian Path problem.
-
-
-\section{Edge-Disjoint Paths (34 points)}
-In the edge-disjoint paths problem (EDP), the input is an undirected graph $G = (V,E)$ and a set $T = \{(s_1, t_2), (s_2, t_2), \dots, (s_k, t_k)\}$, such that $s_i, t_i \in V$ for all $i \in [k]$.  A feasible solution is a set $I \subseteq [k]$ and for all $i \in I$ a path $P_i$ between $s_i$ and $t_i$, with the additional constraint that $P_i \cap P_j = \emptyset$ for $i, j \in I$ with $i \neq j$ (where we view paths as edge sets).  In other words, a feasible solution is a set of edge-disjoint paths between a subset of the pairs in $T$.  The objective is to maximize $|I|$, i.e., the number of edge-disjoint paths that we can find.  
-
-Consider the following greedy algorithm, where initially $I \leftarrow \emptyset$:
-\begin{enumerate}[label=\arabic*.]
-\item Initially $I = \emptyset$ and $H = G$
-\item Repeat until all pairs $(s_i, t_i)$, $i \in [k] \setminus I$ are disconnected in $H$:
-	\begin{enumerate}
-	\item Let $i \in [k] \setminus I$ be the index which minimizes the distance between $s_i$ and $t_i$ in $H$, i.e., $i = \argmin_{j \in [k] \setminus I} d_H(s_j, t_j)$
-	\item Let $P_{i}$ be a shortest path between $s_i$ and $t_i$ in $H$.
-	\item Add $i$ to $I$ and choose path $P_{i}$ for $i$, and remove all edges of $P_{i}$ from $H$.
-	\end{enumerate}
-\item Return $I$ and the paths $\{P_i : i \in I\}$
 \end{enumerate}
 
-Informally, this algorithm just always picks the shortest possible path remaining, then deletes this path from the graph and continues.  Prove that this is an $O(\sqrt{m})$-approximation (where $m = |E|$).  
 
-Hint: divide paths up into short paths (length at most $\sqrt{m}$) and long paths (length larger than $\sqrt{m}$).  
+\section{Min-degree Steiner Tree (50 points)}
+The Min-degree Steiner tree problem is the same as the Steiner tree problem, except instead of minimizing total cost our goal is to minimize the maximum degree.  More formally, we are given an undirected graph $G = (V,E)$ and a subset $D \subseteq V$ of terminals.  The goal is to find a tree $T$ in $G$ which spans all of $D$ (but not necessarily all of $V$) and which minimizes the maximum degree.  
 
+Show how to modify the local search algorithm from class for min-degree spanning tree to get a local search algorithm for min-degree Steiner tree that runs in polynomial time and returns a tree with maximum degree at most $2 \Delta^* + \log n$ (where $\Delta^*$ is the maximum degree of the optimal tree).  If you're off by $+ O(1)$ (like we were in class) that's OK, i.e., a bound of the form $2 \Delta^* + \log n + c$ is OK for constant $c$.
+
+Hints: 
+\begin{enumerate}
+\item[(1)] You will need to slightly redefine a $u$-improvement, since adding a single edge might not create a fundamental cycle anymore.  What kind of structure ``acts" in a way equivalent to a non-tree edge  in spanning trees?  
+\item[(2)] You might want to use the following structural graph theoretic result: in any tree with $n$ nodes in which all non-leaves have degree at least $d$, the number of leaves is at least $\frac{d-2}{d-1} n$.  You may use this without proof, although it's a good idea to convince yourself that it's true.
+\item[(3)] You will also have to change the potential function when analyzing the running time.  How can you change it so that the same basic idea from class works?
+\end{enumerate}
 
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

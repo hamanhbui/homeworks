@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+\usepackage{listings}
+
+\usepackage{enumitem}                     
+
+
+ \usepackage{titlesec}
+
+\titleformat*{\section}{\bfseries}
+\titleformat*{\subsection}{\bfseries}
+\titleformat*{\subsubsection}{\bfseries}
+\titleformat*{\paragraph}{\bfseries}
+\titleformat*{\subparagraph}{\bfseries}
+
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+
+
+\newtheorem{fact}{Fact}
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notation
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% anupam's abbreviations
+\newcommand{\e}{\epsilon}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+\newcommand{\junk}[1]{}
+\newcommand{\sse}{\subseteq}
+\newcommand{\union}{\cup}
+\newcommand{\meet}{\wedge}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+
+\setenumerate[0]{label=(\alph*)}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+\noindent {\large {\bf 601.435 / 601.635 Approximation Algorithms} \hfill {{\bf Spring 2024}}}\\
+{{\bf Homework \#3}} \hfill {{\bf Due:} March 14, 2024, 9:00am} \\
+\rule[0.1in]{\textwidth}{0.4pt}
+
+Reminder: you may work in groups of up to three people, but must write up solutions entirely on your own.  Collaboration is limited to discussing the problems -- you may not look at, compare, reuse, etc.~any text from anyone else in the class.  Please include your list of collaborators on the first page of your submission.  Many of these problems have solutions which can be found on the internet -- please don't look.  You can of course use the internet (including the links provided on the course webpage) as a learning tool, but don't go looking for solutions.  
+
+Please include proofs with all of your answers, unless stated otherwise.
+
+\noindent \rule[0.1in]{\textwidth}{0.4pt}
+
+\section{SONET ring loading (50 points)}
+The following problem, known as the \emph{SONET ring loading problem}, is a classical problem in telecommunications networks.  We are given an undirected cycle on $n$ nodes, numbered $0$ through $n-1$ clockwise around the cycle.  We are also given a set $T$ of calls, where each call is a pair $(i,j)$ originating at node $i$ and destined to node $j$.  The call can be routed either clockwise or counterclockwise through the cycle.  The objective is to route the calls so as to minimize the maximum load on the network: the load $L_i$ on link $\{i, (i+1)\pmod n\}$ is the number of calls routed through the link (in either direction), and the maximum load is $\max_{0 \leq i \leq n-1} L_i$.  
+
+\begin{enumerate}
+\item (20 points) Write an LP relaxation for this problem, and use it to give a 2-approximation algorithm by using \emph{deterministic} rounding on the LP.
+
+\item (10 points) Prove that this is tight by proving that the integrality gap of your LP relaxation is at least 2.
+
+\item (20 points) Now suppose that we are also given a positive capacity $c_e \in \R^+$ for each edge $e$ in the cycle and a demand $d_{(i,j)} \in \R^+$ for each call $(i,j) \in T$.  A natural generalization of the problem would be to define the load on an edge $\{i, (i+1)\pmod n\}$ to be the sum of the demands of the calls routed through the link divided by the capacity of the link, and then the objective function is to minimize the max load (as before).  Note that if all capacities and demands are $1$ then this is exactly the SONET ring loading problem.  Give a (deterministic) 2-approximation algorithm for this problem.  
+\end{enumerate}
+
+\section{Maximum Directed Cut (Exercises 5.3, 5.6) (50 points)}
+In the \emph{maximum directed cut} problem (known as MAX DICUT), the input is a directed graph $G = (V, E)$ and for each edge $(i,j \in E)$ there is a nonnegative weight $w_{ij} \geq 0$.  The goal is to partition $V$ into two sets $U$ and $W = V \setminus U$ in order to maximize the total weight of the edges going from $U$ to $W$ (that is, edges $(i,j)$ with $i \in U$ and $j \in W$).
+
+\begin{enumerate}
+\item (15 points) Give a simple randomized $4$-approximation to this problem (no LPs necessary).  
+
+
+\item (15 points) Prove that the following ILP is an exact formulation: any cut gives an ILP solution with at least as large value, and any ILP solution gives a cut with at least as large value.  
+\begin{alignat*}{2}
+\max  \quad & \sum_{\{i,j\} \in E} w_{ij} z_{ij} \\
+\text{subject to} \quad & z_{ij} \leq x_i \qquad & \forall (i,j) \in E  \\
+& z_{ij} \leq 1-x_j  \qquad& \forall (i,j) \in E \\
+& z_{ij} \in \{0,1\} & \forall (i,j) \in E \\
+&x_i \in \{0,1\} & \forall i \in V
+\end{alignat*} 
+
+\item (20 points) Consider a randomized rounding algorithm which works as follows: we first solve the LP relaxation of the ILP from part (b), and then for each vertex $i \in V$, it adds $i$ to $U$ with probability $\frac{1}{4} + \frac{x_i}{2}$.  Prove that this gives a $2$-approximation to MAX DICUT.  
+
+\end{enumerate}
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

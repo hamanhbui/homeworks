@@ -11,11 +11,13 @@
 \usepackage{fullpage}
 \usepackage{enumitem}
 \usepackage{graphicx}
-
+\usepackage{xcolor}
 \usepackage{listings}
 
 \usepackage{enumitem}                     
 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
  \usepackage{titlesec}
 
@@ -89,6 +91,10 @@ Please include proofs with all of your answers, unless stated otherwise.
 
 \noindent \rule[0.1in]{\textwidth}{0.4pt}
 
+\begin{center}
+    \textbf{\textcolor{blue}{Student: Ha Manh Bui (hbui13@jhu.edu)}}
+\end{center}
+
 \section{SONET ring loading (50 points)}
 The following problem, known as the \emph{SONET ring loading problem}, is a classical problem in telecommunications networks.  We are given an undirected cycle on $n$ nodes, numbered $0$ through $n-1$ clockwise around the cycle.  We are also given a set $T$ of calls, where each call is a pair $(i,j)$ originating at node $i$ and destined to node $j$.  The call can be routed either clockwise or counterclockwise through the cycle.  The objective is to route the calls so as to minimize the maximum load on the network: the load $L_i$ on link $\{i, (i+1)\pmod n\}$ is the number of calls routed through the link (in either direction), and the maximum load is $\max_{0 \leq i \leq n-1} L_i$.  
 
@@ -99,6 +105,71 @@ The following problem, known as the \emph{SONET ring loading problem}, is a clas
 
 \item (20 points) Now suppose that we are also given a positive capacity $c_e \in \R^+$ for each edge $e$ in the cycle and a demand $d_{(i,j)} \in \R^+$ for each call $(i,j) \in T$.  A natural generalization of the problem would be to define the load on an edge $\{i, (i+1)\pmod n\}$ to be the sum of the demands of the calls routed through the link divided by the capacity of the link, and then the objective function is to minimize the max load (as before).  Note that if all capacities and demands are $1$ then this is exactly the SONET ring loading problem.  Give a (deterministic) 2-approximation algorithm for this problem.  
 \end{enumerate}
+
+\textcolor{purple}{
+    (a) For every $t \in [T]$, let $x_t=1$ if the call $t$-th is clockwise and $x_t=0$ if it is counterclockwise. Then, we can see that if an algorithm returns $x_t$, $\forall t \in [T]$, $x:=\{x_t\}_{t=1}^T$ will be a feasible solution for the SONET ring loading problem.\\
+    For each edge $e \in E$, where $E$ is the set of edges, let $C_e$ be the set of the calls that route clockwise through $e$. Firstly, we can write an ILP formulation for this problem as
+    \begin{align}\label{1a:ilp}
+        \min_{x}& W \nonumber\\
+        \text{s.t. }& \sum_{t \in C_e}x_t + \sum_{t \notin C_e}(1-x_t) \leq W, \forall e \in E\nonumber \\
+        & x_t\in\{0,1\}, \forall t \in [T].
+    \end{align}
+    Then, we can write an LP relaxation by
+    \begin{align}\label{1a:lp}
+        \min_{x}& W \nonumber\\
+        \text{s.t. }& \sum_{t \in C_e}x_t + \sum_{t \notin C_e}(1-x_t) \leq W, \forall e \in E\nonumber \\
+        & 0 \leq x_t \leq 1, \forall t \in [T].
+    \end{align}
+    So, we can solve the LP in Eq.~\ref{1a:lp} to get an optimal fractional solution $x^*$ in polynomial time since the LP has a size polynomial in the size of the instance. Let $W^*$ be the optimal solution for this LP. We then can create a \textbf{rounding algorithm} that round $x^*$ to an integral solution $x'$ as follows
+    \begin{align}\label{1a:rouding}
+        x'_t = \begin{cases} 
+            1 & \text{ if } x^*_t \geq \frac{1}{2},\\ 
+            0 & \text{ otw}.
+        \end{cases}
+    \end{align}
+    Then, this rounding is a 2-approximation algorithm.\\
+    \begin{proof}
+        Since $x^*$ is a feasible solution to the LP in Eq.~\ref{1a:lp}, i.e, for all $e \in E$, we have $\sum_{t \in C_e}x^*_t + \sum_{t \notin C_e}(1-x^*_t) \leq W^*$ and $0\leq x^*_t\leq 1$. Combining with the deterministic rounding in Eq.~\ref{1a:rouding}, we have $x'_t\leq 2 x^*_t$ and $1-x'_t\leq 2(1-x^*_t)$, hence, getting 
+        \begin{align}
+            \sum_{t \in C_e}x'_t + \sum_{t \notin C_e}(1-x'_t) \leq \sum_{t \in C_e}2x^*_t + \sum_{t \notin C_e}2(1-x^*_t)\leq 2W^*,
+        \end{align}
+        i.e., this rounding is a 2-approximation algorithm and $x'$ is a feasible solution to the ILP in Eq.~\ref{1a:ilp}.
+    \end{proof}
+}
+
+\textcolor{purple}{
+    (b) The integrality gap of the LP relaxation in Eq.~\ref{1a:lp} is at least 2.\\
+    \begin{proof}
+        Consider an instance $I$ of $\exists e \in E$ s.t. all call $t\in [T]$ will route clockwise via edge $e$, then we have the optimal solution to the SONET ring loading problem $OPT=T$. But in the LP in Eq.~\ref{1a:lp}, if we set $x_t=\frac{1}{2}$ for every $t\in [T]$, then we have a valid LP solution with cost
+        \begin{align}
+            \sum_{t \in C_e}x_t + \sum_{t \notin C_e}(1-x_t) = \sum_{t \in C_e}\frac{1}{2} = \frac{T}{2},
+        \end{align}
+        yielding $\frac{OPT(I)}{LP(I)}=\frac{T}{T/2}=2$, i.e., the integrality gap is at least 2.
+    \end{proof}
+}
+
+\textcolor{purple}{
+    (c) We can write an LP relaxation for the generalization problem as follows
+    \begin{align}\label{1c:lp}
+        \min_{x}& W \nonumber\\
+        \text{s.t. }& \frac{1}{c_e} \left[\sum_{t \in C_e}x_t d_t + \sum_{t \notin C_e}(1-x_t) d_t\right] \leq W, \forall e \in E\nonumber \\
+        & 0\leq x_t \leq 1, \forall t \in [T].
+    \end{align}
+    Similar to (a), we can solve the LP in Eq.~\ref{1c:lp} to get an optimal fractional solution $x^*$ in polynomial time and let $W^*$ be the optimal solution for this LP. Then, we can create a \textbf{rounding algorithm} that rounds $x^*$ to an integral solution $x'$ following Eq.~\ref{1a:rouding} and this is a 2-approximation algorithm for the generalization problem.\\
+    \begin{proof}
+        Since $x^*$ is a feasible solution to the LP in Eq.~\ref{1c:lp}, i.e, for all $e \in E$, we have
+        \begin{align}
+            \frac{1}{c_e} \left[\sum_{t \in C_e}x^*_t d_t + \sum_{t \notin C_e}(1-x^*_t) d_t\right] \leq W^* \text{ and } 0\leq x^*_t\leq 1.
+        \end{align}
+        Combining with the deterministic rounding in Eq.~\ref{1a:rouding}, we have $x'_t\leq 2 x^*_t$ and $1-x'_t\leq 2(1-x^*_t)$, hence, getting
+        \begin{small}
+            \begin{align}
+                \frac{1}{c_e} \left[\sum_{t \in C_e}x'_t d_t + \sum_{t \notin C_e}(1-x'_t) d_t\right] \leq 2 \frac{1}{c_e} \left[\sum_{t \in C_e}x^*_t d_t + \sum_{t \notin C_e}(1-x^*_t) d_t\right]\leq 2W^*\leq 2OPT \text{ (since (b))},
+            \end{align}
+        \end{small}
+        i.e., this is a 2-approximation algorithm for the generalization problem and $x'$ is a feasible solution.
+    \end{proof}
+}
 
 \section{Maximum Directed Cut (Exercises 5.3, 5.6) (50 points)}
 In the \emph{maximum directed cut} problem (known as MAX DICUT), the input is a directed graph $G = (V, E)$ and for each edge $(i,j \in E)$ there is a nonnegative weight $w_{ij} \geq 0$.  The goal is to partition $V$ into two sets $U$ and $W = V \setminus U$ in order to maximize the total weight of the edges going from $U$ to $W$ (that is, edges $(i,j)$ with $i \in U$ and $j \in W$).
@@ -118,43 +189,84 @@ In the \emph{maximum directed cut} problem (known as MAX DICUT), the input is a 
 
 \item (20 points) Consider a randomized rounding algorithm which works as follows: we first solve the LP relaxation of the ILP from part (b), and then for each vertex $i \in V$, it adds $i$ to $U$ with probability $\frac{1}{4} + \frac{x_i}{2}$.  Prove that this gives a $2$-approximation to MAX DICUT.  
 
+\textcolor{purple}{
+    (a) 
+    \begin{algorithm}[ht!]
+        \caption{A randomized $4$-approximation algorithm}\label{alg:alg_1}
+        \begin{algorithmic}
+        \State \textbf{Input:} Directed graph $G = (V, E)$, $w_{ij} \geq 0$ for each edge $(i,j \in E)$, $K$ rounds
+        \For{$k: 1 \rightarrow K$}
+            \State Randomly partition $V$ into two sets $U$ and $W_k = V \setminus U_k$ by uniformly for every vertex
+            \State Compute the total weight of the edges going from $U_k$ to $W_k$, i.e., $X_k=\sum_{(i,j)\mid i\in U_k, j\in W_k}w_{ij}$
+        \EndFor
+        \State \textbf{Return:} $(U_{k*}, W_{k*})$, where $k^* = \arg\max_{k\in [K]}X_k$ 
+        \end{algorithmic}
+    \end{algorithm}
+    Firstly, we can see that the Alg.~\ref{alg:alg_1} runs in polynomial time and returns $(U_{k*}, W_{k*})$, which is two separated sets, partitioned from $V$, so it is a feasible solution. Secondly, Alg.~\ref{alg:alg_1} is a $4$-approximation by the following proof.\\
+    \begin{proof}
+        Let $OPT$ be the weight of the optimal cut and $X_k$ be the cut weight in the $k$-th round. Since each vertex is either in $W$ or $U$, we have
+        \begin{align}
+            \mathbb{E}[X] = \mathbb{E}\left[\sum_{k=1}^K X_i\right] = \sum_{k=1}^K\mathbb{E}[X_k]= \sum_{i=1}^K \frac{1}{2} OPT \geq \frac{1}{2} OPT.
+        \end{align}
+        Combining with the fact that
+        \begin{align}
+            p\left(X_k\geq \frac{1}{2} OPT\right) = \frac{1}{2},\quad \forall k \in [K],
+        \end{align}
+        we obtain
+        \begin{align}
+            ALL = \frac{1}{2} \mathbb{E}[X] \geq \frac{1}{2} \cdot \frac{1}{2} OPT = \frac{1}{4} OPT,
+        \end{align}
+        i.e.,
+        \begin{align}
+            \frac{OPT}{ALL} \leq 4.
+        \end{align}
+        As a result, since the objective is maximizing, we obtain the Alg.~\ref{alg:alg_1} is a $4$-approximation.
+    \end{proof}
+}
+
+\textcolor{purple}{
+    (b) 
+    \begin{proof}
+        Let $x$, $z$ be a feasible solution of ILP. Assign $U=\{i\in V: x_i=1\}$ and $W=\{i\in V: x_i=0\}$. Then, we have
+        \begin{align}
+            \sum_{(i,j)|i\in U, j\in W}w_{ij} = \sum_{\{i,j\}\in E}w_{ij}z_{ij},
+        \end{align}
+        so $(U,W)$ has the same cost as $z$. And for all $i \in V$, we know that $x_i\in \{0,1\}$ and thus $i$ is in either $U$ or $W$. Therefore, $(U,W)$ is a feasible solution of the max-directed cut problem, i.e., any ILP solution gives a cut with at least as large value.\\
+        Conversely, let $(U,W)$ is a feasible solution of the max-directed cut problem. Then for all $i\in V$, let $x_i=1$ if $i\in U$, and let $x_i=0$ if $i\in W$. And, for all $\{i,j\}\in E$, let $z_{ij}=1$ if $i\in U, j\in W$, and $z_{ij}=0$ otw. Then, we have 
+        \begin{align}
+            \sum_{\{i,j\}\in E}w_{ij}z_{ij} = \sum_{(i,j)|i\in U, j\in W}w_{ij},
+        \end{align}
+        so $(U,W)$ has the same cost as $z$. And for all $i \in V$, we know that $x_i\in \{0,1\}$, and for all $(i,j) \in E$, we know that $z_{ij} \in \{0,1\}$, thus $z_{ij} \leq x_i$ and $z_{ij} \leq 1-x_j$. Therefore, $x,z$ is a feasible ILP solution, i.e., any cut gives an ILP solution with at least as large value.
+    \end{proof}
+}
+
+\textcolor{purple}{
+    (c) 
+    \begin{proof}
+        By for each vertex $i \in V$, $i$ is added to $U$ with probability $\frac{1}{4} + \frac{x_i}{2}$, we have
+        \begin{align}
+            p(i\in U, j\in W) &= p(i\in U) p(i\in W)\\
+            &= \left(\frac{1}{4}+\frac{x_i}{2}\right) \left[1 - \left(\frac{1}{4}+\frac{x_j}{2}\right)\right]\\
+            &= \left(\frac{1}{4}+\frac{x_i}{2}\right) \left[\frac{1}{4} + \left(1-\frac{x_j}{2}\right)\right].
+        \end{align}
+        Combining with the fact that $z_{ij}\leq x_i$ and $z_{ij}\leq 1-x_j$, we get
+        \begin{align}\label{2c}
+             p(i\in U, j\in W) &\geq \left(\frac{1}{4}+\frac{z_{ij}}{2}\right) \left(\frac{1}{4} + \frac{z_{ij}}{2}\right) = \left(\frac{1}{4}+\frac{z_{ij}}{2}\right)^2 \geq \frac{z_{ij}}{2}.
+        \end{align}
+        On the other hand, since $OPT$ is the weight of the optimal cut, $OPT$ is also the optimal value of the ILP by (b). Let $OPT_{LP}$ be the optimal value of the LP-relaxation, then we have
+        \begin{align}
+            ALL &= \mathbb{E}\left[\sum_{\{i,j\}\in E}w_{ij} z_{ij}\right] = \sum_{\{i,j\}\in E} w_{ij} \mathbb{E}[z_{ij}] = \sum_{\{i,j\}\in E} w_{ij} p(i\in U, j\in W),
+        \end{align}
+        combining with the result from Eq.~\ref{2c}, yielding
+        \begin{align}
+            ALL\geq \sum_{\{i,j\}\in E} w_{ij} \frac{z_{ij}}{2} \geq  \frac{1}{2} OPT_{LP}\geq \frac{1}{2} OPT,
+        \end{align}
+        i.e.,
+        \begin{align}
+            \frac{OPT}{ALL} \leq 2.
+        \end{align}
+        As a result, since the objective is maximizing, we obtain the proposed algorithm is a $2$-approximation.
+    \end{proof}
+}
 \end{enumerate}
-
-
-
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
